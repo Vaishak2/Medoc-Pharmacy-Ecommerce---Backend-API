@@ -1,0 +1,19 @@
+{
+    "type": "postgres",
+    "host": "194.238.23.134",
+    "port": 5432,
+    "username": "postgres",
+    "password": "123456",
+    "database": "db_medo_pharm",
+    "synchronize": false,
+    "logging": false,
+    "entities": ["src/models/*.ts"],
+    "migrations": [
+    "src/migrations/**/*.ts"
+  ],
+  "cli": {
+    "entitiesDir": "src/models",
+    "migrationsDir": "src/migrations"
+  }
+  }
+  
