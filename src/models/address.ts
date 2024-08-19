@@ -4,8 +4,10 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user';
+import { Order } from './orderModel';
 
 @Entity('tbl_address')
 export class Address {
@@ -48,4 +50,7 @@ export class Address {
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user!: User;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders!: Order[];
 }

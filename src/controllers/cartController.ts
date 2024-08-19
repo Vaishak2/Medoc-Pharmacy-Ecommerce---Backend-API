@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as CartService from '../services/cartService';
-import { applyCoupon } from '../services/cartService';
+import { applyCoupon, placeOrderFromCart } from '../services/cartService';
 import { updateCart } from '../services/cartService';
 
 export const addToCart = async (req: Request, res: Response) => {
@@ -8,7 +8,11 @@ export const addToCart = async (req: Request, res: Response) => {
 
     try {
         const cartItem = await CartService.addToCart(userId, productId, quantity,size,);
-        res.status(200).json({ message: 'Product added to cart successfully', data: cartItem });
+        if (cartItem) {
+          res.status(200).json({ message: 'Product already in cart' });
+      } else {
+        res.status(200).json({ message: 'Product added to cart successfullyssss', data: cartItem });
+      }
     } catch (error) {
         res.status(500).json({ message: 'Error adding product to cart', error: (error as Error).message });
     }
@@ -88,3 +92,14 @@ export const updateCartItem = async (req: Request, res: Response) => {
       });
     }
   };
+
+  export const placeOrder = async (req: Request, res: Response) => {
+    const { cartId } = req.params;
+
+    try {
+        const order = await placeOrderFromCart(Number(cartId));
+        res.status(200).json({ message: 'Order placed successfully', data : order });
+    } catch (error) {
+        res.status(500).json({ message: 'Error placing order', error });
+    }
+};

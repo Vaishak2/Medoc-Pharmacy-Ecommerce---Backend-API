@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { createOrder, getOrdersByUserId, cancelOrderById,} from '../repositories/orderRepository';
+import { createOrder, getOrdersByUserId, cancelOrderById, getFilteredOrders, getOrderDetails,} from '../repositories/orderRepository';
 import { createNotification } from '../repositories/notificationRepository';
-import { getReturnsWithAllData } from '../services/returnService';
 import { Carts } from '../models/cart';
 
 // export const postOrder = async (req: Request, res: Response) => {
@@ -22,13 +21,26 @@ import { Carts } from '../models/cart';
 
 
 export const postOrder = async (req: Request, res: Response) => {
-  const { userId, productId, status, payment_method } = req.body;
   try {
-    const newOrder = await createOrder(Number(userId), Number(productId), status, payment_method);
-    await createNotification(userId, 'Order Placed', `Order ${newOrder.product.name} has been placed successfully`);
-    res.status(201).json({ message: 'Order placed successfully', data: newOrder });
+    const { userId, productId, status, paymentMethod, addressId } = req.body;
+
+    const newOrder = await createOrder(
+      parseInt(userId, 10),
+      parseInt(productId, 10),
+      status,
+      paymentMethod,  // pass this as 'paymentMethod' but in service, it's 'payment_method'
+      parseInt(addressId, 10)
+    );
+
+    res.status(201).json({
+      message: 'Order created successfully',
+      data: newOrder,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error placing order', error });
+    res.status(400).json({
+      message: 'Error creating order',
+      error: (error as Error).message,
+    });
   }
 };
 
@@ -80,6 +92,36 @@ export const cancelOrder = async (req: Request, res: Response) => {
   }
 };
 
+export const getFilteredOrdersHandler = async (req: Request, res: Response) => {
+  const { user_id } = req.params;
+
+  try {
+    const orders = await getFilteredOrders(Number(user_id));
+    res.status(200).json({
+      message: 'Filtered orders retrieved successfully',
+      data: {orders},
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error retrieving filtered orders',
+      error: (error as Error).message,
+    });
+  }
+};
+
+export const getOrderDetailsController = async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.params;
+    console.log(orderId,"SSSSSSSSSS")
+    const orderDetails = await getOrderDetails(Number(orderId));
+    res.json({
+      message : "Success",
+      data :  orderDetails
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching order details', error: (error as Error).message });
+  }
+};
 
 
 

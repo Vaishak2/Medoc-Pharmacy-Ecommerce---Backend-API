@@ -12,7 +12,7 @@
 //     type: DataTypes.INTEGER.UNSIGNED,
 //     autoIncrement: true,
 //     primaryKey: true,
-//   },
+//   },   
 //   labRequestId: {
 //     type: DataTypes.INTEGER.UNSIGNED,
 //     allowNull: false,

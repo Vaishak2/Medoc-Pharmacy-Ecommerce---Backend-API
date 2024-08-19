@@ -1,4 +1,4 @@
-import { getRepository } from 'typeorm';
+import { getRepository, LessThan, MoreThan } from 'typeorm';
 import { CustomerReview } from '../models/customerReview';
 import { CustomerReviewLike } from '../models/customerReviewLikes';
 
@@ -62,19 +62,42 @@ export const getCustomerReviews = async () => {
 export const getReviewsByProductId = async (
   productId: number, 
   pageNumber: number = 1, 
-  pageSize: number = 10
+  pageSize: number = 10,
+  filter: string = 'mostHelpful' // Default filter
 ) => {
   const reviewRepository = getRepository(CustomerReview);
 
   // Calculate offset for pagination
   const offset = (pageNumber - 1) * pageSize;
 
-  // Fetch reviews with pagination
+  // Define the order and where conditions based on the filter
+  let orderCondition: any = {};
+  let whereCondition: any = { product: { id: productId } };
+
+  switch (filter) {
+    case 'mostRecent':
+      orderCondition = { date: 'DESC' };
+      break;
+    case 'positive':
+      orderCondition = { rating: 'DESC' };
+      whereCondition.rating = MoreThan(2);
+      break;
+    case 'negative':
+      orderCondition = { rating: 'ASC' };
+      whereCondition.rating = LessThan(2);
+      break;
+    default: // 'mostHelpful'
+      orderCondition = { like: 'DESC' };
+      break;
+  }
+
+  // Fetch reviews with pagination and filtering
   const [reviews, totalReviews] = await reviewRepository.findAndCount({
-    where: { product: { id: productId } },
+    where: whereCondition,
     relations: ['product', 'user'],
     skip: offset,
     take: pageSize,
+    order: orderCondition,
   });
 
   if (reviews.length === 0) {
@@ -117,7 +140,7 @@ export const getReviewsByProductId = async (
     averageRating: parseFloat(averageRating.toFixed(1)),
     customerImages,
     totalReviews,
-    totalPages: Math.ceil(totalReviews / pageSize),     
+    totalPages: Math.ceil(totalReviews / pageSize),
     currentPage: pageNumber,
   };
 };
@@ -136,31 +159,6 @@ export const getReviewLikesDislikes = async (reviewId: number) => {
 };
 
 // -------------------------------------------------------------------------------------------------------------
-
-// export const updateCustomerReviewIsLike = async (reviewId: number, isLike: boolean) => {
-//   const customerReviewRepository = getRepository(CustomerReview);
-  
-//   const review = await customerReviewRepository.findOne({ where: { id: reviewId } });
-
-//   if (!review) {
-//     throw new Error('Review not found');
-//   }
-//   // Adjust like and dislike counts based on the isLike value
-//   if (isLike) {
-//     review.like += 1;
-//     review.dislike = Math.max(0, review.dislike - 1); // Ensure dislike doesn't go negative
-//   } else {
-//     review.dislike += 1;
-//     review.like = Math.max(0, review.like - 1); // Ensure like doesn't go negative
-//   }
-
-//   // Update the is_like status
-//   review.is_like = isLike;
-
-//   await customerReviewRepository.save(review);
-
-//   return review;
-// };
 
 
 export const updateCustomerReviewIsLike = async (reviewId: number, userId: number, isLike: boolean) => {

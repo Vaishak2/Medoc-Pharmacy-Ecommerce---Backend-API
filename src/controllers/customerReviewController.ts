@@ -99,24 +99,26 @@ export const updateCustomerReviewIsLikeById = async (req: Request, res: Response
 // -------------------------------------------------------------------------------------------------------------
 
 export const getCustomerReviewsByProductId = async (req: Request, res: Response) => {
+  const { productId, pageNumber } = req.params;
+  const { pageSize = 10, filter } = req.query;
+
   try {
-    const productId = parseInt(req.params.productId, 10);
-    const pageNumber = parseInt(req.params.pageNumber, 10) || 1;
-    const pageSize = parseInt(req.query.pageSize as string, 10) || 10; // Optional: Default to 10 per page
+    const reviewsData = await getReviewsByProductId(
+      Number(productId),
+      Number(pageNumber),
+      Number(pageSize),
+      String(filter)
+    );
 
-    if (isNaN(productId) || isNaN(pageNumber)) {
-      return res.status(400).json({ message: 'Invalid product ID or page number' });  
-    }
-
-    const reviewData = await getReviewsByProductId(productId, pageNumber, pageSize);
-
-    return res.status(200).json({
+    res.json({
       message: 'Reviews fetched successfully',
-      data: reviewData,
+      data: reviewsData,
     });
   } catch (error) {
-    console.error('Error fetching reviews:', error);
-    return res.status(500).json({ message: 'Error fetching reviews', error: (error as Error).message });
+    res.status(500).json({
+      message: 'Error fetching reviews',
+      error: (error as Error).message,
+    });
   }
 };
 // -------------------------------------------------------------------------------------------------------------

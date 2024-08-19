@@ -22,6 +22,7 @@ import cors from 'cors';
 import orderRoutes from './routes/orderRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import customerReviewRoutes from './routes/customerReviewRoutes';
+import bulkUploadRoutes from './routes/productBulkUploadRoutes';
 
 const app = express();
 // const express = require('express');
@@ -33,6 +34,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use('/api', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api', bulkUploadRoutes);
 app.use('/api', productRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api', bannerRoutes); 

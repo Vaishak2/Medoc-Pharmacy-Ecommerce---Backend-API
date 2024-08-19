@@ -12,7 +12,7 @@
 //     autoIncrement: true,
 //     primaryKey: true,
 //   },
-//   name: {
+//   name: {     
 //     type: new DataTypes.STRING(128),
 //     allowNull: false,
 //   },

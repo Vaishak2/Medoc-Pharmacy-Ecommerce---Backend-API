@@ -9,14 +9,18 @@ export class Return {
   @ManyToOne(() => Order, (order) => order.returns)
   @JoinColumn({ name: 'order_id' })
   order!: Order;
+  
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable:true })
   return_date!: Date;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable:true })  // Default value added
+  return_request_date!: Date;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable:true})
   return_amount!: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable:true})
   purchased_amount!: number;
 
   @Column({ type: 'text' })

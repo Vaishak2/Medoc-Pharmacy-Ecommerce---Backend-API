@@ -16,6 +16,7 @@
 //     type: new DataTypes.STRING(128),
 //     allowNull: false,
 //   },
+// sdgfh./;guilyfjxthfdgxvcb
 // }, {
 //   sequelize,
 //   tableName: 'managers',

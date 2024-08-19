@@ -1,7 +1,7 @@
 // src/routes/cartRoutes.ts
 import { Router } from 'express';
 import * as CartController from '../controllers/cartController';
-import { updateCartItem } from '../controllers/cartController';
+import { placeOrder, updateCartItem } from '../controllers/cartController';
 
 const router = Router();
 
@@ -11,6 +11,7 @@ router.get('/cart/:userId/:pageNumber/:couponId?', CartController.getCartDetails
 router.post('/cart/applyCoupon', CartController.applyCouponController);
 router.put('/cart/update', updateCartItem);
 router.get('/counts/:userId', CartController.getCountsController);
+router.post('/cart/:cartId', placeOrder);
 // router.post('/cart/apply-coupon', applyCouponToCart);
 
 export default router;

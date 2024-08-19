@@ -3,6 +3,7 @@ import { User } from './user';
 import { Product } from './product';
 import { Return } from './order_return';
 import { Carts } from './cart';
+import { Address } from './address';
 
 @Entity('tbl_orders')
 export class Order {
@@ -17,6 +18,10 @@ export class Order {
   @JoinColumn({ name: 'product_id' })
   product!: Product;
 
+  @ManyToOne(() => Address, (address) => address.orders)
+  @JoinColumn({ name: 'address_Id' })
+  address!: Address;
+
   @Column({ type: 'varchar', length: 50 })
   status!: string;
 
@@ -28,6 +33,21 @@ export class Order {
 
   @Column({ type: 'text', nullable: true })
   comments!: string;
+
+  @Column({ type: 'text', nullable: true })
+  subTotal!: number;
+
+  @Column({ type: 'text', nullable: true })
+  totalSavings!: number;
+
+  @Column({ type: 'text', nullable: true })
+  couponDiscount!: number;
+
+  @Column({ type: 'text', nullable: true })
+  taxes!: number;
+
+  @Column({ type: 'text', nullable: true })
+  totalAmount!: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   ordered_at!: Date;
