@@ -18,7 +18,7 @@ export const getAddressesByUserIdService = async (userId: number) => {
 };
 
 export const deleteAddressService = async (addressId: number): Promise<void> => {
-  await deleteAddress(addressId);
+  await deleteAddress(addressId);  
 };
 
 export const selectAddressService = async (userId: number, addressId: number): Promise<Address> => {

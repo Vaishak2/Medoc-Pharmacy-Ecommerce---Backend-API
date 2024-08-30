@@ -55,7 +55,9 @@ export const getOrders = async (req: Request, res: Response) => {
       id: order.id,
       user_id: order.user.id,
       product: {
+        id: order.product.id,
         name: order.product.name,
+        price: order.product.price,
         img: order.product.image_url,
         stock: order.product.stockQuantity,
         size: order.product.selectedSize,
@@ -112,7 +114,6 @@ export const getFilteredOrdersHandler = async (req: Request, res: Response) => {
 export const getOrderDetailsController = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
-    console.log(orderId,"SSSSSSSSSS")
     const orderDetails = await getOrderDetails(Number(orderId));
     res.json({
       message : "Success",

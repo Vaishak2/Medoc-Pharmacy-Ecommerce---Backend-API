@@ -10,4 +10,5 @@ export interface IAddressData {
     name: string;
     phoneNumber: string;
     isselected: boolean;
+    isDeleted: boolean;
   }

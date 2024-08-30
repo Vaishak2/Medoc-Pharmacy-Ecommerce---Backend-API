@@ -16,7 +16,7 @@ export const getCoupons = async (req: Request, res: Response) => {
       data: {
         coupons,
         total,
-        currentPage,
+        currentPage,  
         pageSize
       }
     });

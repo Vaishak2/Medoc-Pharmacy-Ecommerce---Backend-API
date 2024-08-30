@@ -18,7 +18,7 @@ export const fetchDeals = async (_req: Request, res: Response) => {
     res.status(200).json({
       message: 'Success',
       data : {
-        productsList:[products]
+        productsList:products
       }
 
     });

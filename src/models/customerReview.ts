@@ -39,6 +39,9 @@ export class CustomerReview {
     @Column({ type: 'boolean', default: null })
     is_like!: boolean;
 
+    @Column({ type: 'boolean', default: null })
+    is_dislike!: boolean;
+
     @Column({ type: 'int', default: 0 })
     like!: number;
 

@@ -3,45 +3,45 @@ import { CustomerReview } from '../models/customerReview';
 import { CustomerReviewLike } from '../models/customerReviewLikes';
 
 export const createCustomerReview = async (
-    userId: number,
-    productId: number,
-    rating: number,
-    customerImg: string[],
-    reviewTitle: string,
-    reviewDescription: string,
-    is_like: boolean,
-    like: number,
-    dislike: number
-  ) => {
-    const customerReviewRepository = getRepository(CustomerReview);
-  
-    // Check if a review already exists for the same user and product
-    const existingReview = await customerReviewRepository.findOne({
-      where: {
-        user: { id: userId },
-        product: { id: productId },
-      },
-    });
-  
-    if (existingReview) {
-      throw new Error('Review already exists');
-    }
-  
-    const newReview = customerReviewRepository.create({
+  userId: number,
+  productId: number,
+  rating: number,
+  customerImg: string[],
+  reviewTitle: string,
+  reviewDescription: string,
+  is_like: boolean,
+  like: number,
+  dislike: number
+) => {
+  const customerReviewRepository = getRepository(CustomerReview);
+
+  // Check if a review already exists for the same user and product
+  const existingReview = await customerReviewRepository.findOne({
+    where: {
       user: { id: userId },
       product: { id: productId },
-      rating,
-      customer_img: customerImg,
-      review_title: reviewTitle,
-      review_description: reviewDescription,
-      is_like,
-      like,
-      dislike,
-    });
-  
-    await customerReviewRepository.save(newReview);
-    return newReview;
-  };
+    },
+  });
+
+  if (existingReview) {
+    throw new Error('Review already exists');
+  }
+
+  const newReview = customerReviewRepository.create({
+    user: { id: userId },
+    product: { id: productId },
+    rating,
+    customer_img: customerImg,
+    review_title: reviewTitle,
+    review_description: reviewDescription,
+    is_like,
+    like,
+    dislike,
+  });
+
+  await customerReviewRepository.save(newReview);
+  return newReview;
+};
 
 // -------------------------------------------------------------------------------------------------------------
 
@@ -60,8 +60,8 @@ export const getCustomerReviews = async () => {
 // -------------------------------------------------------------------------------------------------------------
 
 export const getReviewsByProductId = async (
-  productId: number, 
-  pageNumber: number = 1, 
+  productId: number,
+  pageNumber: number = 1,
   pageSize: number = 10,
   filter: string = 'mostHelpful' // Default filter
 ) => {
@@ -132,6 +132,7 @@ export const getReviewsByProductId = async (
       review_title: review.review_title,
       review_description: review.review_description,
       is_like: review.is_like,
+      is_dislike : review.is_dislike,
       like: review.like,
       dislike: review.dislike,
       date: review.date,
@@ -149,7 +150,7 @@ export const getReviewsByProductId = async (
 // As of now not required
 export const getReviewLikesDislikes = async (reviewId: number) => {
   const customerReviewRepository = getRepository(CustomerReview);
-  const review = await customerReviewRepository.findOne({where: { id : reviewId }});
+  const review = await customerReviewRepository.findOne({ where: { id: reviewId } });
 
   if (!review) {
     throw new Error('Review not found');
@@ -161,7 +162,12 @@ export const getReviewLikesDislikes = async (reviewId: number) => {
 // -------------------------------------------------------------------------------------------------------------
 
 
-export const updateCustomerReviewIsLike = async (reviewId: number, userId: number, isLike: boolean) => {
+export const updateCustomerReviewIsLike = async (
+  reviewId: number,
+  userId: number,
+  isLike: boolean | null,
+  isDislike: boolean | null
+) => {
   const customerReviewRepository = getRepository(CustomerReview);
   const customerReviewLikeRepository = getRepository(CustomerReviewLike);
 
@@ -171,39 +177,52 @@ export const updateCustomerReviewIsLike = async (reviewId: number, userId: numbe
     throw new Error('Review not found');
   }
 
-   // Update the is_like status
-   review.is_like = isLike;
+  // Update like and dislike counts based on the provided changes
+  if (isLike !== null) {
+    if (isLike) {
+      review.is_like = true;
+      review.is_dislike = false
+      review.like += 1;
+      review.dislike = Math.max(0, review.dislike - 1); // Decrease dislike if it was previously disliked
 
-   // Update like and dislike counts based on the provided changes
-   if (isLike) {
-     review.like += 1;
-     review.dislike = Math.max(0, review.dislike - 1);
-   } else {
-     review.dislike += 1;
-     review.like = Math.max(0, review.like - 1);
-   }
- 
+    } else {
+      // review.like = Math.max(0, review.like - 1); // Decrease like if it was previously liked
+
+    }
+  }
+
+  if (isDislike !== null && isDislike !== false) {
+    if (isDislike) {
+      review.is_dislike = true;
+      review.is_like = false;
+      review.dislike += 1;
+      review.like = Math.max(0, review.like - 1); // Decrease like if it was previously liked
+    } else {
+      // review.dislike = Math.max(0, review.dislike - 1); // Decrease dislike if it was previously disliked
+    }
+  }
+
   // Find or create a new like/dislike entry for the user and review
   let reviewLike = await customerReviewLikeRepository.findOne({
     where: { review: { id: reviewId }, user: { id: userId } }
   });
-  // console.log(reviewLike,"SSSSSSSSSSSS")
 
   if (reviewLike) {
-    // If the user already liked/disliked the review, update the like status
-    reviewLike.isLike = isLike;
+    // If the user already liked/disliked the review, update the like/dislike status
+    if (isLike !== null) reviewLike.isLike = isLike;
+    if (isDislike !== null) reviewLike.isDislike = isDislike;
   } else {
     // If the user hasn't liked/disliked the review, create a new like/dislike entry
-    reviewLike = customerReviewLikeRepository.create({ review, user: { id: userId }, isLike });
+    reviewLike = customerReviewLikeRepository.create({
+      review,
+      user: { id: userId },
+      isLike: isLike ?? false,      // Defaults to false if null
+      isDislike: isDislike ?? false // Defaults to false if null
+    });
   }
   await customerReviewLikeRepository.save(reviewLike);
 
-  // // Recalculate like and dislike counts
-  // const [likeCount, dislikeCount] = await Promise.all([
-  //   customerReviewLikeRepository.count({ where: { review: { id: reviewId }, isLike: true } }),
-  //   customerReviewLikeRepository.count({ where: { review: { id: reviewId }, isLike: false } })
-  // ]);
-
+  // Save the updated review
   await customerReviewRepository.save(review);
 
   return review;
@@ -211,39 +230,38 @@ export const updateCustomerReviewIsLike = async (reviewId: number, userId: numbe
 
 
 
-
-  // -------------------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------------------
 
 export const updateCustomerReview = async (
-    reviewId: number,
-    rating: number,
-    customerImg: string[],
-    reviewTitle: string,
-    reviewDescription: string,
-    is_like: boolean,
-    like: number,
-    dislike: number
-  ) => {
-    const customerReviewRepository = getRepository(CustomerReview);
-    const review = await customerReviewRepository.findOne({where: { id : reviewId }});
-  
-    if (!review) {
-      throw new Error('Review not found');
-    }
-  
-    review.rating = rating;
-    review.customer_img = customerImg;
-    review.review_title = reviewTitle;
-    review.review_description = reviewDescription;
-    review.is_like = is_like;
-    review.like = like;
-    review.dislike = dislike;
-  
-    await customerReviewRepository.save(review);
-    return review;
-  };
+  reviewId: number,
+  rating: number,
+  customerImg: string[],
+  reviewTitle: string,
+  reviewDescription: string,
+  is_like: boolean,
+  like: number,
+  dislike: number
+) => {
+  const customerReviewRepository = getRepository(CustomerReview);
+  const review = await customerReviewRepository.findOne({ where: { id: reviewId } });
+
+  if (!review) {
+    throw new Error('Review not found');
+  }
+
+  review.rating = rating;
+  review.customer_img = customerImg;
+  review.review_title = reviewTitle;
+  review.review_description = reviewDescription;
+  review.is_like = is_like;
+  review.like = like;
+  review.dislike = dislike;
+
+  await customerReviewRepository.save(review);
+  return review;
+};
 // -------------------------------------------------------------------------------------------------------------
-  export const deleteReview = async (id: number) => {
-    const reviewRepository = getRepository(CustomerReview);
-    return await reviewRepository.delete(id);
-  };
+export const deleteReview = async (id: number) => {
+  const reviewRepository = getRepository(CustomerReview);
+  return await reviewRepository.delete(id);
+};

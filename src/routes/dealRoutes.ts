@@ -1,7 +1,7 @@
 // src/routes/dealRoutes.ts
 import { Router } from 'express';
 import { addDeal, fetchDeals, fetchDealById, getDeals } from '../controllers/dealController';
-import authMiddleware from '../middlewares/authMiddleware';
+// import authMiddleware from '../middlewares/authMiddleware';
 
 const router = Router();
 

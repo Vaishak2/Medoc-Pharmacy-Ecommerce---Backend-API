@@ -80,19 +80,23 @@ export const getReviewLikeDislikeCount = async (req: Request, res: Response) => 
 
 export const updateCustomerReviewIsLikeById = async (req: Request, res: Response) => {
   const { reviewId } = req.params;
-  const { isLike , userId } = req.body;
-  // const userId = req.user.id; // Assuming you have user information in the request
+  const { isLike, isDislike, userId } = req.body;
 
   try {
-    const updatedReview = await updateCustomerReviewIsLike(Number(reviewId), userId, Boolean(isLike));
+    const updatedReview = await updateCustomerReviewIsLike(
+      Number(reviewId),
+      userId,
+      isLike !== undefined ? Boolean(isLike) : null,
+      isDislike !== undefined ? Boolean(isDislike) : null
+    );
     res.status(200).json({
-      message: 'Review like status updated successfully',
+      message: 'Review like/dislike status updated successfully',
       data: updatedReview,
     });
   } catch (error) {
     res.status(500).json({
-      message: 'Error updating review like status',
-      error:(error as Error).message,
+      message: 'Error updating review like/dislike status',
+      error: (error as Error).message,
     });
   }
 };

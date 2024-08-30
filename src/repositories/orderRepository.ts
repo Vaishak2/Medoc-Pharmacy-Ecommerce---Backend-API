@@ -191,6 +191,9 @@ if (!user || !product || !address) {
     itemShippedDate: order.item_shipped_date,
     outForDeliveryDate: order.out_for_delivery_date,
     itemIsDelivered: order.item_is_delivered,
+    refundStatus : order.refundStatus,
+    returnDate : order.returnedDate,
+    cancelDate : order.cancelDate,
     productDetails: {
       id: product.id,
       name: product.name,

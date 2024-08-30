@@ -74,7 +74,7 @@ export const selectAddressController = async (req: Request, res: Response) => {
   const { userId } = req.body;
 
   if (!userId) {
-      return res.status(400).json({ message: 'userId is required' });
+      return res.status(400).json({ message: 'userId is required' });   
   }
 
   try {

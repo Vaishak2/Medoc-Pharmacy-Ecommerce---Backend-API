@@ -2,7 +2,7 @@ import { AppDataSource } from '../database/dataSource';
 import { Address } from '../models/address';
 import { IAddressData } from '../types/IAddressData'
 
-import { getRepository } from 'typeorm';
+import { getRepository, In } from 'typeorm';
 
 const addressRepository = AppDataSource.getRepository(Address);
 
@@ -48,21 +48,34 @@ export const updateAddress = async (addressId: number, addressData: IAddressData
 
 export const getAddressesByUserId = async (userId: number) => {
   const addressRepository = getRepository(Address);
-  return await addressRepository.find({ where: { userId } });
+
+  return await addressRepository.find({
+    where: {
+      userId,
+      isDeleted: In([false, null]), // In case `isDelete` can be true or null
+    },
+  });
 };
 
 export const deleteAddress = async (addressId: number): Promise<void> => {
   try {
+    // Find the existing address by ID
     const existingAddress = await addressRepository.findOne({ where: { id: addressId } });
 
+    // If the address doesn't exist, throw an error
     if (!existingAddress) {
       throw new Error(`Address with ID ${addressId} not found`);
     }
 
-    await addressRepository.remove(existingAddress);
+    // Set the `isDelete` field to `false` instead of deleting the record
+    existingAddress.isDeleted = true;
+
+    // Save the updated address record
+    await addressRepository.save(existingAddress);
+
   } catch (error) {
-    console.error('Error deleting address:', error);
-    throw new Error('Failed to delete address');
+    console.error('Error marking address as deleted:', error);
+    throw new Error('Failed to mark address as deleted');
   }
 };
 

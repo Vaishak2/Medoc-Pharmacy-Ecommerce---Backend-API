@@ -64,6 +64,15 @@ export class Order {
   @Column({ type: 'timestamp', nullable: true })
   item_is_delivered?: Date;
 
+  @Column({ type: 'timestamp', nullable: true })
+  returnedDate?: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  cancelDate?: Date;
+
+  @Column({ type: 'boolean', nullable: true })
+  refundStatus?: Boolean;
+
   @OneToMany(() => Return, (orderReturn) => orderReturn.order)
   returns!: Return[];
 

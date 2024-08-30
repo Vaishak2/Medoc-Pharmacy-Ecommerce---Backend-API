@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import * as CartService from '../services/cartService';
-import { applyCoupon, placeOrderFromCart } from '../services/cartService';
+import { applyCoupon, placeOrderForUser, placeOrderFromCart } from '../services/cartService';
 import { updateCart } from '../services/cartService';
 
 export const addToCart = async (req: Request, res: Response) => {
@@ -8,10 +8,10 @@ export const addToCart = async (req: Request, res: Response) => {
 
     try {
         const cartItem = await CartService.addToCart(userId, productId, quantity,size,);
-        if (cartItem) {
+        if (!cartItem) {
           res.status(200).json({ message: 'Product already in cart' });
       } else {
-        res.status(200).json({ message: 'Product added to cart successfullyssss', data: cartItem });
+        res.status(200).json({ message: 'Product added to cart successfullys', data: cartItem });
       }
     } catch (error) {
         res.status(500).json({ message: 'Error adding product to cart', error: (error as Error).message });
@@ -102,4 +102,16 @@ export const updateCartItem = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: 'Error placing order', error });
     }
+};
+
+
+export const placeOrderByUserId = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  try {
+      const orders = await placeOrderForUser(Number(userId));
+      res.status(200).json({ message: 'Orders placed successfully',orders});
+  } catch (error) {
+      res.status(500).json({ message: 'Error placing orders', error: (error as Error).message });
+  }
 };

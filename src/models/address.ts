@@ -46,8 +46,11 @@ export class Address {
 
   @Column({ type: 'boolean', nullable: true })
   isselected!: boolean;
+  
+  @Column({ type: 'boolean', nullable: true })  
+  isDeleted!: boolean;
 
-  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })  
   @JoinColumn({ name: 'userId' })
   user!: User;
 

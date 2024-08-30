@@ -18,7 +18,10 @@ import {
     @ManyToOne(() => CustomerReview, review => review.customerReviewLikes)
     review!: CustomerReview;
   
-    @Column()
+    @Column({ type: 'boolean', default: null })
     isLike!: boolean;
+
+    @Column({ type: 'boolean', default: null })
+    isDislike!: boolean; 
   }
   
