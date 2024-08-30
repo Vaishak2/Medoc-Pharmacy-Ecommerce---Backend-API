@@ -7,7 +7,7 @@ const router = Router();
 
 // router.post('/subCategories', createSubCategory);
 // router.get('/subCategories/:category_id', (req, res) => getAllSubCategories(req, res));
-router.get('/categories/:categoryId/subcategories', getSubCategories);
+router.get('/categories/:categoryId', getSubCategories);
 
 
 export default router;

@@ -1,7 +1,7 @@
 // src/controllers/categoryController.ts
 import { Request, Response } from 'express';
 import subCategoryService from '../services/subcategoryServices';
-import { getSubCategoriesByCategoryId } from '../services/subcategoryServices';
+import { getCategoriesByCategoryId } from '../services/subcategoryServices';
 
 
 const createSubCategory = async (req: Request, res: Response) => {
@@ -22,10 +22,10 @@ const createSubCategory = async (req: Request, res: Response) => {
 export const getSubCategories = async (req: Request, res: Response) => {
   const { categoryId } = req.params;
   try {
-    const subCategories = await getSubCategoriesByCategoryId(Number(categoryId));
+    const categories = await getCategoriesByCategoryId(Number(categoryId));
     res.json({
       message:"Success",
-      subCategory:subCategories
+      category:categories
   });
   } catch (error) {
     res.status(500).json({ 
